@@ -84,11 +84,16 @@ extern "C" {
     } EXTENSION_DAEMON_DESCRIPTOR;
 
     typedef enum {
-        EXTENSION_LOG_DETAIL,
-        EXTENSION_LOG_DEBUG,
-        EXTENSION_LOG_INFO,
-        EXTENSION_LOG_WARNING
+        _EXTENSION_LOG_DETAIL,
+        _EXTENSION_LOG_DEBUG,
+        _EXTENSION_LOG_INFO,
+        _EXTENSION_LOG_WARNING
     } EXTENSION_LOG_LEVEL;
+
+#define EXTENSION_LOG_DETAIL  __func__,__LINE__,_EXTENSION_LOG_DETAIL
+#define EXTENSION_LOG_DEBUG   __func__,__LINE__,_EXTENSION_LOG_DEBUG
+#define EXTENSION_LOG_INFO    __func__,__LINE__,_EXTENSION_LOG_INFO
+#define EXTENSION_LOG_WARNING __func__,__LINE__,_EXTENSION_LOG_WARNING
 
     /**
      * Log extensions should provide the following rescriptor when
@@ -115,7 +120,14 @@ extern "C" {
          *                      known)
          * @param fmt format string to add to the log
          */
-#ifdef __GNUC__
+#ifdef MNTH
+        void (*log)(const char *func,
+                    const int line,
+                    EXTENSION_LOG_LEVEL severity,
+                    const void* client_cookie,
+                    const char *fmt, ...)
+            __attribute__ ((__format__ (__printf__, 5, 6)));
+#elif defined(__GNUC__)
         void (*log)(EXTENSION_LOG_LEVEL severity,
                     const void* client_cookie,
                     const char *fmt, ...)

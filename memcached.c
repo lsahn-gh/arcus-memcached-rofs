@@ -14988,11 +14988,11 @@ static EXTENSION_LOG_LEVEL get_log_level(void)
 {
     EXTENSION_LOG_LEVEL ret;
     switch (settings.verbose) {
-    case 0: ret = EXTENSION_LOG_WARNING; break;
-    case 1: ret = EXTENSION_LOG_INFO; break;
-    case 2: ret = EXTENSION_LOG_DEBUG; break;
+    case 0: ret = _EXTENSION_LOG_WARNING; break;
+    case 1: ret = _EXTENSION_LOG_INFO; break;
+    case 2: ret = _EXTENSION_LOG_DEBUG; break;
     default:
-        ret = EXTENSION_LOG_DETAIL;
+        ret = _EXTENSION_LOG_DETAIL;
     }
     return ret;
 }
@@ -15000,9 +15000,9 @@ static EXTENSION_LOG_LEVEL get_log_level(void)
 static void set_log_level(EXTENSION_LOG_LEVEL severity)
 {
     switch (severity) {
-    case EXTENSION_LOG_WARNING: settings.verbose = 0; break;
-    case EXTENSION_LOG_INFO: settings.verbose = 1; break;
-    case EXTENSION_LOG_DEBUG: settings.verbose = 2; break;
+    case _EXTENSION_LOG_WARNING: settings.verbose = 0; break;
+    case _EXTENSION_LOG_INFO: settings.verbose = 1; break;
+    case _EXTENSION_LOG_DEBUG: settings.verbose = 2; break;
     default:
         settings.verbose = 3;
     }

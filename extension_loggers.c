@@ -5,19 +5,23 @@
 #include <memcached/extension_loggers.h>
 #include <memcached/engine.h>
 
-static EXTENSION_LOG_LEVEL current_log_level = EXTENSION_LOG_WARNING;
+static EXTENSION_LOG_LEVEL current_log_level = _EXTENSION_LOG_WARNING;
 SERVER_HANDLE_V1 *sapi;
 
 static const char *stderror_get_name(void) {
     return "standard error";
 }
 
-static void stderror_logger_log(EXTENSION_LOG_LEVEL severity,
+static void stderror_logger_log(const char *func,
+                                const int line,
+                                EXTENSION_LOG_LEVEL severity,
                                 const void* client_cookie,
                                 const char *fmt, ...)
 {
     if (severity >= current_log_level) {
         (void)client_cookie;
+
+        fprintf(stderr, "[%s:%d] ", func, line);
 
         va_list ap;
         va_start(ap, fmt);
@@ -58,10 +62,14 @@ static const char *null_get_name(void) {
     return "/dev/null";
 }
 
-static void null_logger_log(EXTENSION_LOG_LEVEL severity,
+static void null_logger_log(const char *func,
+                            const int line,
+                            EXTENSION_LOG_LEVEL severity,
                             const void* client_cookie,
                             const char *fmt, ...)
 {
+    (void)func;
+    (void)line;
     (void)severity;
     (void)client_cookie;
     (void)fmt;
