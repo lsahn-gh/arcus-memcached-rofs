@@ -29,7 +29,7 @@ lib_LTLIBRARIES = ascii_scrub.la \
                   stdin_term_handler.la
 
 if BUILD_SYSLOG_LOGGER
-lib_LTLIBRARIES += syslog_logger.la
+#lib_LTLIBRARIES += syslog_logger.la
 endif
 
 noinst_LTLIBRARIES=libmcd_util.la
@@ -65,7 +65,7 @@ libmcd_util_la_SOURCES= \
                         mock_server.c \
                         util.c
 
-AM_CFLAGS = @PROFILER_FLAGS@ @COMMON_CFLAGS@
+AM_CFLAGS = @PROFILER_FLAGS@ @COMMON_CFLAGS@ -DMNTH
 memcached_SOURCES = \
                     cache.h \
                     config_static.h \
@@ -191,8 +191,8 @@ example_protocol_la_SOURCES= example_protocol.c protocol_extension.h
 example_protocol_la_LDFLAGS= -avoid-version -shared -module -no-undefined
 
 # A logger using syslog
-syslog_logger_la_SOURCES = syslog_logger.c
-syslog_logger_la_LDFLAGS = -avoid-version -shared -module -no-undefined
+#syslog_logger_la_SOURCES = syslog_logger.c
+#syslog_logger_la_LDFLAGS = -avoid-version -shared -module -no-undefined
 
 basic_engine_testsuite_la_SOURCES= basic_engine_testsuite.c
 basic_engine_testsuite_la_DEPENDENCIES= libmcd_util.la
