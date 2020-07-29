@@ -17,3 +17,44 @@
  */
 
 #include "mnth-helper.h"
+
+#define G global_keyring
+#define KEYRING keyring
+#define GET_KEY(ptr) ((mnth_keys*)ptr)
+
+static struct _global_keyring {
+  dlist_t keyring;
+  pthread_mutex_t lock;
+} global_keyring = {
+  .keyring = DLIST_HEAD_INIT(G.keyring),
+  .lock = PTHREAD_MUTEX_INITIALIZER
+};
+
+static void *
+key_new_alloc0(void)
+{
+  mnth_keys *new_mem = malloc(sizeof(mnth_keys));
+  if (!new_mem)
+    return NULL;
+  memset(new_mem, 0, sizeof(*new_mem));
+  return new_mem;
+}
+
+char *
+mnth_keyring_add(const char *key)
+{
+  mnth_keys *new_key;
+
+  if (!key)
+    return NULL;
+
+  new_key = key_new_alloc0();
+  if (!new_key)
+    return NULL;
+
+  memcpy(new_key->key, key, sizeof(new_key->key));
+
+  dlist_append(GET_DLIST(&G.KEYRING), GET_DLIST(new_key));
+
+  return new_key;
+}

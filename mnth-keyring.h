@@ -21,4 +21,14 @@
 
 #include "mnth-dlist.h"
 
+#define KEYLEN 128
+
+typedef struct _mnth_keys mnth_keys;
+struct _mnth_keys {
+  dlist_t list;
+  char key[KEYLEN];
+};
+
+char * mnth_keyring_add(const char *key);
+
 #endif
