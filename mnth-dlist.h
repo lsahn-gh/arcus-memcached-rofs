@@ -1,11 +1,11 @@
 /**
- * mnth-keyring.h
+ * mnth-dlist.h
  *
  * backport dlist.h from https://github.com/memnoth/portable-cds
  */
 
-#ifndef _MNTH_KEYRING_H_
-#define _MNTH_KEYRING_H_
+#ifndef _MNTH_DLIST_H_
+#define _MNTH_DLIST_H_
 
 #include <stdlib.h>
 #include <stdint.h>
