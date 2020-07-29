@@ -92,7 +92,7 @@ memcached_SOURCES = \
 # MNTH
 memcached_SOURCES += mnth-keyring.c
 AM_CFLAGS += -DMNTH \
-						 -Wno-error=incompatible-pointer-types
+	-Wno-error=incompatible-pointer-types
 
 
 memcached_LDFLAGS =-R '$(libdir)'
