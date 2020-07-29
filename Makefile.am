@@ -65,7 +65,7 @@ libmcd_util_la_SOURCES= \
                         mock_server.c \
                         util.c
 
-AM_CFLAGS = @PROFILER_FLAGS@ @COMMON_CFLAGS@ -DMNTH
+AM_CFLAGS = @PROFILER_FLAGS@ @COMMON_CFLAGS@
 memcached_SOURCES = \
                     cache.h \
                     config_static.h \
@@ -87,6 +87,14 @@ memcached_SOURCES = \
                     lqdetect.c \
                     lqdetect.h \
                     trace.h
+
+
+# MNTH
+memcached_SOURCES += mnth-keyring.c
+AM_CFLAGS += -DMNTH \
+						 -Wno-error=incompatible-pointer-types
+
+
 memcached_LDFLAGS =-R '$(libdir)'
 memcached_CFLAGS = @PROFILER_FLAGS@ ${AM_CFLAGS}
 memcached_DEPENDENCIES = libmcd_util.la
