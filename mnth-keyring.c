@@ -19,7 +19,6 @@
 #include "mnth-helper.h"
 
 #define G global_keyring
-#define KEYRING keyring
 #define GET_KEY(ptr) ((mnth_keys*)ptr)
 
 static struct _global_keyring {
@@ -54,7 +53,7 @@ mnth_keyring_add(const char *key)
 
   memcpy(new_key->key, key, sizeof(new_key->key));
 
-  dlist_append(GET_DLIST(&G.KEYRING), GET_DLIST(new_key));
+  dlist_append(&G.keyring, GET_DLIST(new_key));
 
   return new_key;
 }
