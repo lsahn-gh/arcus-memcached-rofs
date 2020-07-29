@@ -21,6 +21,8 @@
 
 #include "memcached.h"
 
+#include "mnth-keyring.h"
+
 /* --- ARCUS APIs --- */
 extern void out_string(conn *c, const char *str);
 
