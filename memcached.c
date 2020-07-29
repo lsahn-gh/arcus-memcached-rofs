@@ -1489,7 +1489,7 @@ static int build_udp_headers(conn *c)
     return 0;
 }
 
-static void out_string(conn *c, const char *str)
+void out_string(conn *c, const char *str)
 {
     assert(c != NULL);
     size_t len = strlen(str);
@@ -13127,6 +13127,8 @@ static void process_command(conn *c, char *command, int cmdlen)
     }
 #endif
 
+    mnth_string(c, "tokenization entry point");
+
     ntokens = tokenize_command(command, cmdlen, tokens, MAX_TOKENS);
 
     if ((ntokens >= 3) && ((strcmp(tokens[COMMAND_TOKEN].value, "get" ) == 0) ||
@@ -13149,6 +13151,7 @@ static void process_command(conn *c, char *command, int cmdlen)
          (strcmp(tokens[COMMAND_TOKEN].value, "prepend") == 0 && (comm = (int)OPERATION_PREPEND)) ||
          (strcmp(tokens[COMMAND_TOKEN].value, "append" ) == 0 && (comm = (int)OPERATION_APPEND)) ))
     {
+        mnth_string(c, "add/set/replace entry point");
         process_update_command(c, tokens, ntokens, (ENGINE_STORE_OPERATION)comm, false);
     }
     else if ((ntokens == 7 || ntokens == 8) &&
@@ -13172,18 +13175,22 @@ static void process_command(conn *c, char *command, int cmdlen)
     }
     else if ((ntokens >= 5 && ntokens <= 13) && (strcmp(tokens[COMMAND_TOKEN].value, "lop") == 0))
     {
+        mnth_string(c, "list op entry point");
         process_lop_command(c, tokens, ntokens);
     }
     else if ((ntokens >= 5 && ntokens <= 12) && (strcmp(tokens[COMMAND_TOKEN].value, "sop") == 0))
     {
+        mnth_string(c, "set op entry point");
         process_sop_command(c, tokens, ntokens);
     }
     else if ((ntokens >= 6 && ntokens <= 13) && (strcmp(tokens[COMMAND_TOKEN].value, "mop") == 0))
     {
+        mnth_string(c, "map op entry point");
         process_mop_command(c, tokens, ntokens);
     }
     else if ((ntokens >= 5 && ntokens <= 14) && (strcmp(tokens[COMMAND_TOKEN].value, "bop") == 0))
     {
+        mnth_string(c, "b+tree op entry point");
         process_bop_command(c, tokens, ntokens);
     }
     else if ((ntokens >= 3 && ntokens <= 14) && (strcmp(tokens[COMMAND_TOKEN].value, "getattr") == 0))
