@@ -21,15 +21,15 @@
 
 #include "memcached.h"
 
+/* --- ARCUS APIs --- */
+extern void out_string(conn *c, const char *str);
+
+
 /* --- MNTH APIs --- */
 #define __STRINGIFY(x) #x
 #define STRINGIFY(x) __STRINGIFY(x)
 
-
-/* --- ARCUS APIs --- */
 #define OUTBUFSZ 256
-extern void out_string(conn *c, const char *str);
-
 #define mnth_string(c, str) __mnth_string(__func__, __LINE__, c, str)
 static inline void __mnth_string(const char* func, const int line,
                                  conn *c, const char *str)
