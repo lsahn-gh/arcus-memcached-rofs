@@ -40,7 +40,10 @@ static inline void __mnth_string(const char* func, const int line,
   snprintf(buf, OUTBUFSZ, "MNTH - %s (caller: %s:%d)", str, func, line);
   /* idc the maximum size of out_string's internal buf,
    * just focus on quick prototyping. */
-  out_string(c, buf);
+  if (c)
+    out_string(c, buf);
+  else
+    fprintf(stderr, "[%s:%d] %s", __func__, __LINE__, buf);
 }
 
 #endif
