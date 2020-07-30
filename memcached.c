@@ -391,7 +391,7 @@ static void settings_init(void)
     settings.chunk_size = 48;         /* space for a modest key and value */
     settings.num_threads = 4;         /* N workers */
     settings.prefix_delimiter = ':';
-    settings.detail_enabled = 0;
+    settings.detail_enabled = 1;
     settings.allow_detailed = true;
     settings.reqs_per_event = DEFAULT_REQS_PER_EVENT;
     settings.backlog = 1024;
@@ -8409,6 +8409,8 @@ static void process_stat(conn *c, token_t *tokens, const size_t ntokens)
         return;
     } else if (strcmp(subcommand, "aggregate") == 0) {
         server_stats(&append_stats, c, true);
+    } else if (strcmp(subcommand, "mnthdump") == 0) {
+        mnth_keyring_dump();
     } else if (strcmp(subcommand, "topkeys") == 0) {
         topkeys_t *tk = get_independent_stats(c)->topkeys;
         if (tk != NULL) {
@@ -8697,6 +8699,8 @@ static void process_update_command(conn *c, token_t *tokens, const size_t ntoken
 
     key = tokens[KEY_TOKEN].value;
     nkey = tokens[KEY_TOKEN].length;
+
+    mnth_keyring_add(key, nkey);
 
     if (! (safe_strtoul(tokens[2].value, (uint32_t *)&flags)
            && safe_strtol(tokens[3].value, &exptime_int)
