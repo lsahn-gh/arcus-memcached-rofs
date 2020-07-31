@@ -91,11 +91,11 @@ memcached_LDFLAGS =-R '$(libdir)'
 
 
 # MNTH
-memcached_SOURCES += mnth-keyring.c
+memcached_SOURCES += mnth/mnth-keyring.c
 FUSE3_LDFLAGS := $(shell pkg-config --libs fuse3)
 memcached_LDFLAGS += $(FUSE3_LDFLAGS)
 FUSE3_CFLAGS := $(shell pkg-config --cflags fuse3)
-AM_CFLAGS += -DMNTH $(FUSE3_CFLAGS) \
+AM_CFLAGS += -I./mnth -DMNTH $(FUSE3_CFLAGS) \
 	-Wno-error=incompatible-pointer-types
 
 
