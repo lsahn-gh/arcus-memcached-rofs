@@ -50,9 +50,6 @@ mnth_keyring_add(const char *key, size_t keylen)
   if (!key)
     return NULL;
 
-  if (mnth_keyring_lookup(key))
-    return NULL;
-
   new_key = key_alloc0();
   if (!new_key)
     return NULL;
@@ -74,10 +71,10 @@ mnth_keyring_add(const char *key, size_t keylen)
   return new_key;
 }
 
-int
+char *
 mnth_keyring_lookup(const char *key)
 {
-  int ret = 0;
+  char *ret = NULL;
 
   if (!key)
     return ret;
@@ -87,7 +84,7 @@ mnth_keyring_lookup(const char *key)
   dlist_foreach(&G.keyring) {
     mnth_keys *item = GET_KEY(__ptr);
     if (!memcmp(key, item->key, item->keylen)) {
-      ret = 1;
+      ret = (char*)item;
       goto out;
     }
   }

@@ -8741,7 +8741,7 @@ static void process_update_command(conn *c, token_t *tokens, const size_t ntoken
             out_string(c, "SERVER_ERROR error getting item data");
             break;
         }
-        if (key)
+        if (key && !mnth_keyring_lookup(key))
           mnth_keyring_add(key, nkey);
         c->item = it;
         ritem_set_first(c, CONN_RTYPE_HINFO, vlen);

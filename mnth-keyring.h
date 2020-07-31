@@ -31,7 +31,7 @@ struct _mnth_keys {
 };
 
 char * mnth_keyring_add(const char *key, size_t keylen);
-int mnth_keyring_lookup(const char *key);
+char * mnth_keyring_lookup(const char *key);
 char * mnth_keyring_rm(mnth_keys *key);
 void mnth_keyring_iter(void (*cb)(mnth_keys *key));
 void mnth_keyring_dump(void);
