@@ -8924,9 +8924,14 @@ static void process_delete_command(conn *c, token_t *tokens, const size_t ntoken
 
     /* For some reason the SLAB_INCR tries to access this... */
     if (ret == ENGINE_SUCCESS) {
+        char *found = NULL;
         out_string(c, "DELETED");
         //SLAB_INCR(c, delete_hits, key, nkey);
         STATS_HIT(c, delete, key, nkey);
+        if (key && (found = mnth_keyring_lookup(key), found)) {
+            mnth_keyring_rm(found);
+            free(found);
+        }
     } else if (ret == ENGINE_KEY_ENOENT) {
         out_string(c, "NOT_FOUND");
         //STATS_INCR(c, delete_misses, key, nkey);
