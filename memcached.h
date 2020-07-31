@@ -255,6 +255,7 @@ struct settings {
         EXTENSION_LOGGER_DESCRIPTOR *logger;
         EXTENSION_ASCII_PROTOCOL_DESCRIPTOR *ascii;
     } extensions;
+    char *mpoint;           /* mount point */
 };
 
 struct engine_event_handler {

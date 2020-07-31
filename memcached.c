@@ -407,6 +407,7 @@ static void settings_init(void)
     settings.topkeys = 0;
     settings.require_sasl = false;
     settings.extensions.logger = get_stderr_logger();
+    settings.mpoint = NULL;
 }
 
 /*
@@ -15278,6 +15279,7 @@ int main (int argc, char **argv)
           "x:"  /* Proxy server ip:port */
 #endif
 #endif
+          "Z:"  /* mount point */
         ))) {
         switch (c) {
         case 'a':
@@ -15526,6 +15528,10 @@ int main (int argc, char **argv)
 #endif
 
 #endif
+
+        case 'Z':
+            settings.mpoint = strdup(optarg);
+            break;
 
         default:
             mc_logger->log(EXTENSION_LOG_WARNING, NULL,
@@ -15909,6 +15915,9 @@ int main (int argc, char **argv)
      */
     if (do_daemonize)
         save_pid(getpid(), pid_file);
+
+    if (settings.mpoint)
+        mnth_fs_new_thread(NULL, NULL);
 
     /* enter the event loop */
     event_base_loop(main_base, 0);
