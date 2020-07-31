@@ -22,6 +22,7 @@
 #include "mnth-dlist.h"
 
 #define KEYLEN 128
+#define GET_KEY(ptr) ((mnth_keys*)ptr)
 
 typedef struct _mnth_keys mnth_keys;
 struct _mnth_keys {

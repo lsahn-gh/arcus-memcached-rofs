@@ -8929,7 +8929,7 @@ static void process_delete_command(conn *c, token_t *tokens, const size_t ntoken
         //SLAB_INCR(c, delete_hits, key, nkey);
         STATS_HIT(c, delete, key, nkey);
         if (key && (found = mnth_keyring_lookup(key), found)) {
-            mnth_keyring_rm(found);
+            mnth_keyring_rm(GET_KEY(found));
             free(found);
         }
     } else if (ret == ENGINE_KEY_ENOENT) {
