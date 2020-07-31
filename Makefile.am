@@ -87,15 +87,18 @@ memcached_SOURCES = \
                     lqdetect.c \
                     lqdetect.h \
                     trace.h
+memcached_LDFLAGS =-R '$(libdir)'
 
 
 # MNTH
 memcached_SOURCES += mnth-keyring.c
-AM_CFLAGS += -DMNTH \
+FUSE3_LDFLAGS := $(shell pkg-config --libs fuse3)
+memcached_LDFLAGS += $(FUSE3_LDFLAGS)
+FUSE3_CFLAGS := $(shell pkg-config --cflags fuse3)
+AM_CFLAGS += -DMNTH $(FUSE3_CFLAGS) \
 	-Wno-error=incompatible-pointer-types
 
 
-memcached_LDFLAGS =-R '$(libdir)'
 memcached_CFLAGS = @PROFILER_FLAGS@ ${AM_CFLAGS}
 memcached_DEPENDENCIES = libmcd_util.la
 memcached_LDADD = @PROFILER_LDFLAGS@ libmcd_util.la -levent $(APPLICATION_LIBS)
