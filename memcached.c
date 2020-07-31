@@ -8700,8 +8700,6 @@ static void process_update_command(conn *c, token_t *tokens, const size_t ntoken
     key = tokens[KEY_TOKEN].value;
     nkey = tokens[KEY_TOKEN].length;
 
-    mnth_keyring_add(key, nkey);
-
     if (! (safe_strtoul(tokens[2].value, (uint32_t *)&flags)
            && safe_strtol(tokens[3].value, &exptime_int)
            && safe_strtol(tokens[4].value, (int32_t *)&vlen))) {
@@ -8743,6 +8741,8 @@ static void process_update_command(conn *c, token_t *tokens, const size_t ntoken
             out_string(c, "SERVER_ERROR error getting item data");
             break;
         }
+        if (key)
+          mnth_keyring_add(key, nkey);
         c->item = it;
         ritem_set_first(c, CONN_RTYPE_HINFO, vlen);
         c->store_op = store_op;
