@@ -24,14 +24,19 @@
 #define KEYLEN 128
 #define GET_KEY(ptr) ((mnth_keys*)ptr)
 
+enum {
+  FG_OP_ADD = (1 << 0),
+};
+
 typedef struct _mnth_keys mnth_keys;
 struct _mnth_keys {
   dlist_t list;
   char key[KEYLEN];
   size_t keylen;
+  uint64_t flag;
 };
 
-char * mnth_keyring_add(const char *key, size_t keylen);
+char * mnth_keyring_add(const char *key, size_t keylen, uint64_t flag);
 char * mnth_keyring_lookup(const char *key);
 char * mnth_keyring_rm(mnth_keys *key);
 void mnth_keyring_iter(void (*cb)(mnth_keys *key, void*), void* arg);

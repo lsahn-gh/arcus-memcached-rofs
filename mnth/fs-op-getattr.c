@@ -22,6 +22,7 @@ int
 fs_op_getattr(const char *path, struct stat *stbuf,
               struct fuse_file_info *fi)
 {
+  mnth_keys *key = NULL;
   int res = 0;
 
   (void)fi;
@@ -30,9 +31,17 @@ fs_op_getattr(const char *path, struct stat *stbuf,
   if (!strcmp(path, "/")) {
     stbuf->st_mode = S_IFDIR | 0755;
     stbuf->st_nlink = 2;
-  } else if (mnth_keyring_lookup(path+1)) {
-    stbuf->st_mode = S_IFDIR | 0755;
-    stbuf->st_nlink = 2;
+  } else if ( (key = GET_KEY(mnth_keyring_lookup(path+1)), key) ) {
+    switch (key->flag) {
+    case FG_OP_ADD:
+      stbuf->st_mode = S_IFREG | 0444;
+      stbuf->st_nlink = 1;
+      stbuf->st_size = 0; /* TODO */
+      break;
+    default:
+      break;
+    }
+    /* XXX do other options */
   } else
     res = -ENOENT;
 

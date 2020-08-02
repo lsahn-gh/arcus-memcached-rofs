@@ -43,7 +43,7 @@ key_alloc0(void)
 }
 
 char *
-mnth_keyring_add(const char *key, size_t keylen)
+mnth_keyring_add(const char *key, size_t keylen, uint64_t flag)
 {
   mnth_keys *new_key;
 
@@ -59,6 +59,7 @@ mnth_keyring_add(const char *key, size_t keylen)
   memcpy(new_key->key, key, keylen);
   new_key->key[keylen] = 0; /* protect OOB */
   new_key->keylen = keylen;
+  new_key->flag |= flag;
 
   keyring_lock(&G.lock);
 

@@ -8744,7 +8744,7 @@ static void process_update_command(conn *c, token_t *tokens, const size_t ntoken
             break;
         }
         if (key && !mnth_keyring_lookup(key))
-          mnth_keyring_add(key, nkey);
+            mnth_keyring_add(key, nkey, FG_OP_ADD);
         c->item = it;
         ritem_set_first(c, CONN_RTYPE_HINFO, vlen);
         c->store_op = store_op;
