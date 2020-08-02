@@ -16,21 +16,49 @@
  * limitations under the License.
  */
 
-#include "mnth-fs-thread.h"
+#include "mnth-helper.h"
+#include "fs-op-helper.h"
 
 static void *
-default_fs_loop(void *arg)
+fs_op_init(struct fuse_conn_info *conn, struct fuse_config *cfg)
 {
+  (void)conn;
 
-  while (1) {
-    fprintf(stderr, "MNTH -- fs thread prototype test\n");
-    sleep(1);
-  }
+  cfg->use_ino = 1;
+  cfg->entry_timeout = 0;
+  cfg->attr_timeout = 0;
+  cfg->negative_timeout = 0;
 
   return NULL;
 }
 
-int
+static const struct fuse_operations fs_ops = {
+  .init = fs_op_init,
+  .access = fs_op_access,
+  .getattr = fs_op_getattr,
+  .open = fs_op_open,
+  .read = fs_op_read,
+  .readdir = fs_op_readdir,
+};
+
+static void *
+default_fs_loop(void *arg)
+{
+  char* fake_argv[] = {
+    "memcached",
+    "-f",
+    "-o",
+    "auto_unmount",
+    "./mpoint",
+  };
+
+  fuse_main(sizeof(fake_argv)/sizeof(fake_argv[0]),
+            fake_argv, &fs_ops, NULL);
+
+  return NULL;
+}
+
+pthread_t
 mnth_fs_new_thread(void* (*cb)(void *), void *arg)
 {
   pthread_t id;
@@ -40,5 +68,5 @@ mnth_fs_new_thread(void* (*cb)(void *), void *arg)
   if (pthread_create(&id, NULL, cb, arg) != 0)
     return -errno;
 
-  return 0;
+  return id;
 }

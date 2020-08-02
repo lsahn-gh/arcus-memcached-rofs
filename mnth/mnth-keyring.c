@@ -54,9 +54,10 @@ mnth_keyring_add(const char *key, size_t keylen)
   if (!new_key)
     return NULL;
 
-  if (keylen > sizeof(new_key->key))
-    keylen = sizeof(new_key->key);
+  if (keylen >= sizeof(new_key->key))
+    keylen = sizeof(new_key->key)-1;
   memcpy(new_key->key, key, keylen);
+  new_key->key[keylen] = 0; /* protect OOB */
   new_key->keylen = keylen;
 
   keyring_lock(&G.lock);
@@ -124,13 +125,14 @@ out:
 }
 
 void
-mnth_keyring_iter(void (*cb)(mnth_keys *key))
+mnth_keyring_iter(void (*cb)(mnth_keys *key, void*),
+                  void* arg)
 {
   if (!cb)
     return;
 
   dlist_foreach_safe(&G.keyring)
-    cb(GET_KEY(__ptr));
+    cb(GET_KEY(__ptr), arg);
 }
 
 /**

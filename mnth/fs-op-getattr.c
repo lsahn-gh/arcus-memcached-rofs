@@ -1,5 +1,5 @@
 /**
- * mnth-keyring.h
+ * fs-op-getattr.c
  *
  * Copyright 2020 Leesoo Ahn <dev@ooseel.net>
  *
@@ -16,25 +16,25 @@
  * limitations under the License.
  */
 
-#ifndef _MNTH_KEYRING_H_
-#define _MNTH_KEYRING_H_
+#include "fs-op-helper.h"
 
-#include "mnth-dlist.h"
+int
+fs_op_getattr(const char *path, struct stat *stbuf,
+              struct fuse_file_info *fi)
+{
+  int res = 0;
 
-#define KEYLEN 128
-#define GET_KEY(ptr) ((mnth_keys*)ptr)
+  (void)fi;
 
-typedef struct _mnth_keys mnth_keys;
-struct _mnth_keys {
-  dlist_t list;
-  char key[KEYLEN];
-  size_t keylen;
-};
+  memset(stbuf, 0, sizeof(*stbuf));
+  if (!strcmp(path, "/")) {
+    stbuf->st_mode = S_IFDIR | 0755;
+    stbuf->st_nlink = 2;
+  } else if (mnth_keyring_lookup(path+1)) {
+    stbuf->st_mode = S_IFDIR | 0755;
+    stbuf->st_nlink = 2;
+  } else
+    res = -ENOENT;
 
-char * mnth_keyring_add(const char *key, size_t keylen);
-char * mnth_keyring_lookup(const char *key);
-char * mnth_keyring_rm(mnth_keys *key);
-void mnth_keyring_iter(void (*cb)(mnth_keys *key, void*), void* arg);
-void mnth_keyring_dump(void);
-
-#endif
+  return res;
+}

@@ -21,6 +21,6 @@
 
 #include "mnth-helper.h"
 
-int mnth_fs_new_thread(void* (*cb)(void *), void *arg);
+pthread_t mnth_fs_new_thread(void* (*cb)(void *), void *arg);
 
 #endif

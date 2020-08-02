@@ -92,7 +92,12 @@ memcached_LDFLAGS =-R '$(libdir)'
 
 # MNTH
 memcached_SOURCES += mnth/mnth-keyring.c \
-			mnth/mnth-fs-thread.c
+			mnth/mnth-fs-thread.c \
+			mnth/fs-op-access.c \
+			mnth/fs-op-getattr.c \
+			mnth/fs-op-open.c \
+			mnth/fs-op-read.c \
+			mnth/fs-op-readdir.c
 FUSE3_LDFLAGS := $(shell pkg-config --libs fuse3)
 memcached_LDFLAGS += $(FUSE3_LDFLAGS)
 FUSE3_CFLAGS := $(shell pkg-config --cflags fuse3)

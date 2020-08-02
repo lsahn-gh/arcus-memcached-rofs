@@ -408,6 +408,7 @@ static void settings_init(void)
     settings.require_sasl = false;
     settings.extensions.logger = get_stderr_logger();
     settings.mpoint = NULL;
+    settings.fs_thread_id = 0;
 }
 
 /*
@@ -14657,6 +14658,9 @@ static void sigterm_handler(int sig)
     }
     memcached_shutdown = 1;
 
+    if (settings.mpoint && settings.fs_thread_id > 0)
+      pthread_cancel(settings.fs_thread_id);
+
 #ifdef ENABLE_ZK_INTEGRATION
     if (arcus_zk_cfg) {
         arcus_zk_shutdown = 1;
@@ -15916,8 +15920,11 @@ int main (int argc, char **argv)
     if (do_daemonize)
         save_pid(getpid(), pid_file);
 
-    if (settings.mpoint)
-        mnth_fs_new_thread(NULL, NULL);
+    if (settings.mpoint) {
+        pthread_t tid = mnth_fs_new_thread(NULL, NULL);
+        if (tid > 0)
+          settings.fs_thread_id = tid;
+    }
 
     /* enter the event loop */
     event_base_loop(main_base, 0);
@@ -15942,6 +15949,8 @@ int main (int argc, char **argv)
 
     /* 4) shutdown all threads */
     memcached_shutdown = 2;
+    if (settings.mpoint && settings.fs_thread_id > 0)
+      pthread_join(settings.fs_thread_id, NULL);
     threads_shutdown();
     mc_logger->log(EXTENSION_LOG_INFO, NULL, "Worker threads terminated.\n");
 

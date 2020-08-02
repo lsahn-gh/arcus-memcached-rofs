@@ -19,6 +19,10 @@
 #ifndef _MNTH_HELPER_H_
 #define _MNTH_HELPER_H_
 
+#define FUSE_USE_VERSION 31
+
+#include <fuse.h>
+
 #include "memcached.h"
 
 #include "mnth-keyring.h"

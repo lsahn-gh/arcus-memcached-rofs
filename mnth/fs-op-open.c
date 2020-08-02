@@ -1,5 +1,5 @@
 /**
- * mnth-keyring.h
+ * fs-op-open.c
  *
  * Copyright 2020 Leesoo Ahn <dev@ooseel.net>
  *
@@ -16,25 +16,13 @@
  * limitations under the License.
  */
 
-#ifndef _MNTH_KEYRING_H_
-#define _MNTH_KEYRING_H_
+#include "fs-op-helper.h"
 
-#include "mnth-dlist.h"
+int
+fs_op_open(const char *path, struct fuse_file_info *fi)
+{
+  if ((fi->flags & O_ACCMODE) != O_RDONLY)
+    return -EACCES;
 
-#define KEYLEN 128
-#define GET_KEY(ptr) ((mnth_keys*)ptr)
-
-typedef struct _mnth_keys mnth_keys;
-struct _mnth_keys {
-  dlist_t list;
-  char key[KEYLEN];
-  size_t keylen;
-};
-
-char * mnth_keyring_add(const char *key, size_t keylen);
-char * mnth_keyring_lookup(const char *key);
-char * mnth_keyring_rm(mnth_keys *key);
-void mnth_keyring_iter(void (*cb)(mnth_keys *key, void*), void* arg);
-void mnth_keyring_dump(void);
-
-#endif
+  return 0;
+}
