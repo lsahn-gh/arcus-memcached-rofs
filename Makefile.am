@@ -102,6 +102,7 @@ FUSE3_LDFLAGS := $(shell pkg-config --libs fuse3)
 memcached_LDFLAGS += $(FUSE3_LDFLAGS)
 FUSE3_CFLAGS := $(shell pkg-config --cflags fuse3)
 AM_CFLAGS += -I./mnth -DMNTH $(FUSE3_CFLAGS) \
+	-g -fno-omit-frame-pointer \
 	-Wno-error=incompatible-pointer-types
 
 
@@ -126,10 +127,10 @@ if ENABLE_ISASL
 memcached_SOURCES += sasl_defs.c isasl.c isasl.h
 endif
 
-if INCLUDE_DEFAULT_ENGINE
+#if INCLUDE_DEFAULT_ENGINE
 memcached_SOURCES += $(default_engine_la_SOURCES)
 memcached_LDFLAGS += -export-dynamic
-endif
+#endif
 
 if INCLUDE_DEMO_ENGINE
 memcached_SOURCES += $(demo_engine_la_SOURCES)
