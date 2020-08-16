@@ -8743,8 +8743,6 @@ static void process_update_command(conn *c, token_t *tokens, const size_t ntoken
             out_string(c, "SERVER_ERROR error getting item data");
             break;
         }
-        if (key && !mnth_keyring_lookup(key))
-            mnth_keyring_add(key, nkey, FG_OP_ADD);
         c->item = it;
         ritem_set_first(c, CONN_RTYPE_HINFO, vlen);
         c->store_op = store_op;
@@ -8926,14 +8924,9 @@ static void process_delete_command(conn *c, token_t *tokens, const size_t ntoken
 
     /* For some reason the SLAB_INCR tries to access this... */
     if (ret == ENGINE_SUCCESS) {
-        char *found = NULL;
         out_string(c, "DELETED");
         //SLAB_INCR(c, delete_hits, key, nkey);
         STATS_HIT(c, delete, key, nkey);
-        if (key && (found = mnth_keyring_lookup(key), found)) {
-            mnth_keyring_rm(GET_KEY(found));
-            free(found);
-        }
     } else if (ret == ENGINE_KEY_ENOENT) {
         out_string(c, "NOT_FOUND");
         //STATS_INCR(c, delete_misses, key, nkey);

@@ -31,6 +31,10 @@
 #include "default_engine.h"
 #include "item_clog.h"
 
+#ifdef MNTH
+#include "mnth-keyring.h"
+#endif
+
 //#define SET_DELETE_NO_MERGE
 //#define BTREE_DELETE_NO_MERGE
 
@@ -43,7 +47,11 @@ static inline void do_coll_elem_delete(coll_meta_info *info, int type, uint32_t 
 static uint32_t do_map_elem_delete(map_meta_info *info,
                                    const uint32_t count, enum elem_delete_cause cause);
 
+#ifdef MNTH
+#include <memcached/genhash.h>
+#else
 extern int genhash_string_hash(const void* p, size_t nkey);
+#endif
 
 /*
  * We only reposition items in the LRU queue if they haven't been repositioned
@@ -865,6 +873,13 @@ static hash_item *do_item_alloc(const void *key, const uint32_t nkey,
     }
     it->exptime = exptime;
     it->pfxptr = NULL;
+#ifdef MNTH
+    /* TODO
+     * Call lookup here leads lower performance.
+     * Need to find another way */
+    if (!mnth_keyring_lookup(key))
+        mnth_keyring_add(key, nkey, FG_OP_ADD);
+#endif
     return it;
 }
 
@@ -878,6 +893,10 @@ static void do_item_mem_free(void *item, size_t ntotal)
 
 static void do_item_free(hash_item *it)
 {
+#ifdef MNTH
+    const char *key;
+    char *found;
+#endif
     assert((it->iflag & ITEM_LINKED) == 0);
     assert(it != itemsp->heads[it->slabs_clsid]);
     assert(it != itemsp->tails[it->slabs_clsid]);
@@ -890,6 +909,16 @@ static void do_item_free(hash_item *it)
             return;
         }
     }
+
+#ifdef MNTH
+    /* TODO
+     * performance issue */
+    key = item_get_key(it);
+    if (key && (found = mnth_keyring_lookup(key), found)) {
+        mnth_keyring_rm(GET_KEY(found));
+        free(found);
+    }
+#endif
 
     /* so slab size changer can tell later if item is already free or not */
     DEBUG_REFCNT(it, 'F');
