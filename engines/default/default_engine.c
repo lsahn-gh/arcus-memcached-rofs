@@ -271,6 +271,42 @@ default_item_allocate(ENGINE_HANDLE* handle, const void* cookie,
     return ret;
 }
 
+#ifdef MNTH
+static ENGINE_ERROR_CODE
+mnth_item_allocate(ENGINE_HANDLE* handle, const void* cookie,
+                      item **item,
+                      const void* key, const size_t nkey,
+                      const size_t nbytes,
+                      const int flags, const rel_time_t exptime,
+                      const uint64_t cas, int op)
+{
+    struct default_engine* engine = get_handle(handle);
+    size_t ntotal = sizeof(hash_item) + nkey + nbytes;
+    if (engine->config.use_cas) {
+        ntotal += sizeof(uint64_t);
+    }
+    unsigned int id = slabs_clsid(ntotal);
+    if (id == 0) {
+        return ENGINE_E2BIG;
+    }
+
+    hash_item *it;
+    ENGINE_ERROR_CODE ret = ENGINE_EINVAL;
+
+    ACTION_BEFORE_WRITE(cookie, key, nkey);
+    it = mnth_item_alloc(key, nkey, flags, exptime, nbytes, cookie, op);
+    ACTION_AFTER_WRITE(cookie, ret);
+    if (it != NULL) {
+        item_set_cas(it, cas);
+        *item = it;
+        ret = ENGINE_SUCCESS;
+    } else {
+        ret = ENGINE_ENOMEM;
+    }
+    return ret;
+}
+#endif
+
 static ENGINE_ERROR_CODE
 default_item_delete(ENGINE_HANDLE* handle, const void* cookie,
                     const void* key, const size_t nkey,
@@ -1486,6 +1522,9 @@ create_instance(uint64_t interface, GET_SERVER_API get_server_api,
          .destroy           = default_destroy,
          /* Item API */
          .allocate          = default_item_allocate,
+#ifdef MNTH
+         .mnth_allocate     = mnth_item_allocate,
+#endif
          .remove            = default_item_delete,
          .release           = default_item_release,
          .get               = default_get,

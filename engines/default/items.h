@@ -313,6 +313,13 @@ hash_item *item_alloc(const void *key, const uint32_t nkey,
                       const uint32_t flags, rel_time_t exptime,
                       const uint32_t nbytes, const void *cookie);
 
+#ifdef MNTH
+hash_item *mnth_item_alloc(const void *key, const uint32_t nkey,
+                      const uint32_t flags, rel_time_t exptime,
+                      const uint32_t nbytes, const void *cookie,
+                      int op);
+#endif
+
 /**
  * Get an item from the cache
  *

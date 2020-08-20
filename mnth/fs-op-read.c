@@ -22,5 +22,26 @@ int
 fs_op_read(const char *path, char *buf, size_t size,
            off_t offset, struct fuse_file_info *fi)
 {
-  return 0;
+  hash_item *it;
+  const char *rdata;
+  const char *key;
+  size_t nkey;
+
+  key = path+1;
+  nkey = strlen(key);
+
+  it = item_get(key, nkey);
+  if (it)
+    rdata = item_get_data(it);
+  else
+    return 0;
+
+  if (offset < it->nbytes) {
+    if (offset + size > it->nbytes)
+      size = it->nbytes - offset;
+    memcpy(buf, rdata, size);
+  } else
+    size = 0;
+
+  return size;
 }

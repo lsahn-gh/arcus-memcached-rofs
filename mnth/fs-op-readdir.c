@@ -28,6 +28,8 @@ keyring_iter_cb(mnth_keys *key, void *arg)
 {
   struct keyring_cb_data *data;
   void *buf;
+  /* vla */
+  char keybuf[key->keylen+1];
 
   if (!key || !arg)
     return;
@@ -35,7 +37,10 @@ keyring_iter_cb(mnth_keys *key, void *arg)
   data = (struct keyring_cb_data *)arg;
   buf = data->buf;
 
-  data->func(buf, key->key, NULL, 0, 0);
+  memcpy(keybuf, key->key, key->keylen);
+  keybuf[key->keylen] = 0;
+
+  data->func(buf, keybuf, NULL, 0, 0);
 }
 
 int

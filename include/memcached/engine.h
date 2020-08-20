@@ -240,6 +240,16 @@ extern "C" {
                                       const int flags, const rel_time_t exptime,
                                       const uint64_t cas);
 
+#ifdef MNTH
+        ENGINE_ERROR_CODE (*mnth_allocate)(ENGINE_HANDLE* handle, const void* cookie,
+                                      item **item,
+                                      const void* key, const size_t nkey,
+                                      const size_t nbytes,
+                                      const int flags, const rel_time_t exptime,
+                                      const uint64_t cas, int op);
+
+#endif
+
         /**
          * Remove an item.
          *

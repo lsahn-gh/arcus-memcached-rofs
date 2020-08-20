@@ -873,13 +873,6 @@ static hash_item *do_item_alloc(const void *key, const uint32_t nkey,
     }
     it->exptime = exptime;
     it->pfxptr = NULL;
-#ifdef MNTH
-    /* TODO
-     * Call lookup here leads lower performance.
-     * Need to find another way */
-    if (!mnth_keyring_lookup(key))
-        mnth_keyring_add(key, nkey, FG_OP_ADD);
-#endif
     return it;
 }
 
@@ -2348,6 +2341,11 @@ static hash_item *do_btree_item_alloc(const void *key, const uint32_t nkey,
         it->iflag |= ITEM_IFLAG_BTREE;
         it->nbytes = nbytes; /* NOT real_nbytes */
         memcpy(item_get_data(it), "\r\n", nbytes);
+
+#ifdef MNTH
+        if (!mnth_keyring_lookup(key))
+            mnth_keyring_add(key, nkey, 0, FG_BOP_MRK);
+#endif
 
         /* initialize b+tree meta information */
         btree_meta_info *info = (btree_meta_info *)item_get_meta(it);
@@ -5922,6 +5920,38 @@ hash_item *item_alloc(const void *key, const uint32_t nkey,
     UNLOCK_CACHE();
     return it;
 }
+
+#ifdef MNTH
+hash_item *mnth_item_alloc(const void *key, const uint32_t nkey,
+                      const uint32_t flags, rel_time_t exptime,
+                      const uint32_t nbytes, const void *cookie,
+                      int op)
+{
+    hash_item *it;
+
+    LOCK_CACHE();
+    /* key can be NULL */
+    it = do_item_alloc(key, nkey, flags, exptime, nbytes, cookie);
+    if (key && it) {
+        switch (op) {
+        case OPERATION_ADD:
+        case OPERATION_SET:
+        case OPERATION_REPLACE:
+            /* TODO
+             * Call lookup here leads lower performance.
+             * Need to find another way */
+            if (!mnth_keyring_lookup(key))
+                mnth_keyring_add(key, nkey, nbytes, FG_OP_MRK);
+            break;
+        default:
+            /* Nothing to do */;
+        }
+    }
+    UNLOCK_CACHE();
+
+    return it;
+}
+#endif
 
 /*
  * Returns an item if it hasn't been marked as expired,

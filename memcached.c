@@ -8733,8 +8733,14 @@ static void process_update_command(conn *c, token_t *tokens, const size_t ntoken
     }
 
     ENGINE_ERROR_CODE ret;
+#ifdef MNTH
+    ret = mc_engine.v1->mnth_allocate(mc_engine.v0, c, &it, key, nkey, vlen,
+                                 htonl(flags), realtime(exptime), req_cas_id,
+                                 (int)store_op);
+#else
     ret = mc_engine.v1->allocate(mc_engine.v0, c, &it, key, nkey, vlen,
                                  htonl(flags), realtime(exptime), req_cas_id);
+#endif
 
     switch (ret) {
     case ENGINE_SUCCESS:

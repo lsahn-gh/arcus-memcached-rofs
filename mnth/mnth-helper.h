@@ -23,6 +23,7 @@
 
 #include <fuse.h>
 
+#include <engines/default/default_engine.h>
 #include "memcached.h"
 
 #include "mnth-keyring.h"

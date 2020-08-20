@@ -25,7 +25,12 @@
 #define GET_KEY(ptr) ((mnth_keys*)ptr)
 
 enum {
-  FG_OP_ADD = (1 << 0),
+  FG_OP_NONE  = 0,
+  FG_OP_MRK   = (1 << 0),
+  FG_LOP_MRK  = (1 << 1),
+  FG_SOP_MRK  = (1 << 2),
+  FG_MOP_MRK  = (1 << 3),
+  FG_BOP_MRK  = (1 << 4),
 };
 
 typedef struct _mnth_keys mnth_keys;
@@ -33,10 +38,11 @@ struct _mnth_keys {
   dlist_t list;
   char key[KEYLEN];
   size_t keylen;
+  size_t valsz; /* value size */
   uint64_t flag;
 };
 
-char * mnth_keyring_add(const char *key, size_t keylen, uint64_t flag);
+char * mnth_keyring_add(const char *key, size_t keylen, size_t valsz, uint64_t flag);
 char * mnth_keyring_lookup(const char *key);
 char * mnth_keyring_rm(mnth_keys *key);
 void mnth_keyring_iter(void (*cb)(mnth_keys *key, void*), void* arg);
