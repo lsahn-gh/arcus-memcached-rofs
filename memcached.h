@@ -256,7 +256,10 @@ struct settings {
         EXTENSION_ASCII_PROTOCOL_DESCRIPTOR *ascii;
     } extensions;
     char *mpoint;           /* mount point */
-    pthread_t fs_thread_id;
+#ifdef MNTH
+    pthread_t mnth_fs_thread_id;
+    pthread_t mnth_evt_thread_id;
+#endif
 };
 
 struct engine_event_handler {

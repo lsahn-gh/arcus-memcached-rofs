@@ -32,7 +32,7 @@
 #include "item_clog.h"
 
 #ifdef MNTH
-#include "mnth-keyring.h"
+#include "mnth-event-thread.h"
 #endif
 
 //#define SET_DELETE_NO_MERGE
@@ -886,10 +886,6 @@ static void do_item_mem_free(void *item, size_t ntotal)
 
 static void do_item_free(hash_item *it)
 {
-#ifdef MNTH
-    const char *key;
-    char *found;
-#endif
     assert((it->iflag & ITEM_LINKED) == 0);
     assert(it != itemsp->heads[it->slabs_clsid]);
     assert(it != itemsp->tails[it->slabs_clsid]);
@@ -904,13 +900,7 @@ static void do_item_free(hash_item *it)
     }
 
 #ifdef MNTH
-    /* TODO
-     * performance issue */
-    key = item_get_key(it);
-    if (key && (found = mnth_keyring_lookup(key), found)) {
-        mnth_keyring_rm(GET_KEY(found));
-        free(found);
-    }
+    mnth_evt_key_del(item_get_key(it), it->nkey);
 #endif
 
     /* so slab size changer can tell later if item is already free or not */
@@ -2343,8 +2333,7 @@ static hash_item *do_btree_item_alloc(const void *key, const uint32_t nkey,
         memcpy(item_get_data(it), "\r\n", nbytes);
 
 #ifdef MNTH
-        if (!mnth_keyring_lookup(key))
-            mnth_keyring_add(key, nkey, 0, FG_BOP_MRK);
+        mnth_evt_key_add(key, nkey, 0, FG_BOP_MRK);
 #endif
 
         /* initialize b+tree meta information */
@@ -5937,11 +5926,7 @@ hash_item *mnth_item_alloc(const void *key, const uint32_t nkey,
         case OPERATION_ADD:
         case OPERATION_SET:
         case OPERATION_REPLACE:
-            /* TODO
-             * Call lookup here leads lower performance.
-             * Need to find another way */
-            if (!mnth_keyring_lookup(key))
-                mnth_keyring_add(key, nkey, nbytes, FG_OP_MRK);
+            mnth_evt_key_add(key, nkey, nbytes, FG_OP_MRK);
             break;
         default:
             /* Nothing to do */;

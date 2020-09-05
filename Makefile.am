@@ -93,6 +93,7 @@ memcached_LDFLAGS =-R '$(libdir)'
 # MNTH
 memcached_SOURCES += mnth/mnth-keyring.c \
 			mnth/mnth-fs-thread.c \
+			mnth/mnth-event-thread.c \
 			mnth/fs-op-access.c \
 			mnth/fs-op-getattr.c \
 			mnth/fs-op-open.c \
@@ -103,7 +104,9 @@ memcached_LDFLAGS += $(FUSE3_LDFLAGS)
 FUSE3_CFLAGS := $(shell pkg-config --cflags fuse3)
 AM_CFLAGS += -I./mnth -DMNTH $(FUSE3_CFLAGS) \
 	-g -fno-omit-frame-pointer \
-	-Wno-error=incompatible-pointer-types
+	-Wno-error=incompatible-pointer-types \
+	-Wno-error=unused-function \
+	-Wno-error=unused-variable
 
 
 memcached_CFLAGS = @PROFILER_FLAGS@ ${AM_CFLAGS}

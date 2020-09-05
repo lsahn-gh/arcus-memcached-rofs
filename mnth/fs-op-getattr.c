@@ -22,34 +22,34 @@ int
 fs_op_getattr(const char *path, struct stat *stbuf,
               struct fuse_file_info *fi)
 {
-    mnth_keys *key = NULL;
-    int res = 0;
+  mnth_keys *key = NULL;
+  int res = 0;
 
-    (void)fi;
+  (void)fi;
 
-    memset(stbuf, 0, sizeof(*stbuf));
-    if (!strcmp(path, "/")) {
-        stbuf->st_mode = S_IFDIR | 0755;
-        stbuf->st_nlink = 2;
-    } else if ( (key = GET_KEY(mnth_keyring_lookup(path+1)), key) ) {
-        switch (key->flag) {
-        case FG_OP_MRK:
-            stbuf->st_mode = S_IFREG | 0444;
-            stbuf->st_nlink = 1;
-            stbuf->st_size = key->valsz;
-            break;
-        case FG_LOP_MRK:
-        case FG_SOP_MRK:
-        case FG_MOP_MRK:
-        case FG_BOP_MRK:
-            stbuf->st_mode = S_IFDIR | 0444;
-            stbuf->st_nlink = 2;
-            break;
-        default:
-            break;
-        }
-    } else
-        res = -ENOENT;
+  memset(stbuf, 0, sizeof(*stbuf));
+  if (!strcmp(path, "/")) {
+    stbuf->st_mode = S_IFDIR | 0755;
+    stbuf->st_nlink = 2;
+  } else if ( (key = GET_KEY(mnth_keyring_lookup(path+1)), key) ) {
+    switch (key->flag) {
+    case FG_OP_MRK:
+      stbuf->st_mode = S_IFREG | 0444;
+      stbuf->st_nlink = 1;
+      stbuf->st_size = key->valsz;
+      break;
+    case FG_LOP_MRK:
+    case FG_SOP_MRK:
+    case FG_MOP_MRK:
+    case FG_BOP_MRK:
+      stbuf->st_mode = S_IFDIR | 0444;
+      stbuf->st_nlink = 2;
+      break;
+    default:
+      break;
+    }
+  } else
+    res = -ENOENT;
 
-    return res;
+  return res;
 }

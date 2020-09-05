@@ -59,7 +59,7 @@ default_fs_loop(void *arg)
 }
 
 pthread_t
-mnth_fs_new_thread(void* (*cb)(void *), void *arg)
+mnth_fs_thread_new(void* (*cb)(void *), void *arg)
 {
   pthread_t id;
 

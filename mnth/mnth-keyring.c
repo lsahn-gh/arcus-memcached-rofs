@@ -19,7 +19,6 @@
 #include "mnth-helper.h"
 
 #define G global_keyring
-#define GET_KEY(ptr) ((mnth_keys*)ptr)
 
 static struct _global_keyring {
   dlist_t keyring;
@@ -32,41 +31,21 @@ static struct _global_keyring {
 #define keyring_lock pthread_mutex_lock
 #define keyring_unlock pthread_mutex_unlock
 
-static void *
-key_alloc0(void)
-{
-  mnth_keys *new_mem = malloc(sizeof(mnth_keys));
-  if (!new_mem)
-    return NULL;
-  memset(new_mem, 0, sizeof(*new_mem));
-  return new_mem;
-}
-
 char *
-mnth_keyring_add(const char *key, size_t keylen, size_t valsz, uint64_t flag)
+mnth_keyring_add(mnth_keys *new_key)
 {
-  mnth_keys *new_key;
-
-  if (!key)
-    return NULL;
-
-  new_key = key_alloc0();
   if (!new_key)
     return NULL;
 
-  if (keylen >= sizeof(new_key->key))
-    keylen = sizeof(new_key->key)-1;
-  memcpy(new_key->key, key, keylen);
-  new_key->key[keylen] = 0; /* protect OOB */
-  new_key->keylen = keylen;
-  new_key->valsz = valsz;
-  new_key->flag |= flag;
-
   keyring_lock(&G.lock);
 
-  /* TODO
+  /**
    * it should be hashmap instead of linked-list,
-   * but using until examine 'topkeys' properly */
+   * but using until examine 'topkeys' properly.
+   *
+   * > 2020.09.05
+   * Since I've built buffer thread, it mightn't need.
+   */
   dlist_append(&G.keyring, GET_DLIST(new_key));
 
   keyring_unlock(&G.lock);
@@ -78,14 +57,17 @@ char *
 mnth_keyring_lookup(const char *key)
 {
   char *ret = NULL;
+  dlist_t *pos;
 
   if (!key)
     return ret;
 
   keyring_lock(&G.lock);
 
-  dlist_foreach(&G.keyring) {
-    mnth_keys *item = GET_KEY(__ptr);
+  /* TODO
+   * skip-list, btree, or hashmap */
+  dlist_for_each(pos, &G.keyring) {
+    mnth_keys *item = GET_KEY(pos);
     if (!memcmp(key, item->key, item->keylen)) {
       ret = (char*)item;
       goto out;
@@ -126,6 +108,9 @@ out:
   return ret;
 }
 
+/**
+ * Do not lock/unlock inside callback
+ */
 void
 mnth_keyring_iter(void (*cb)(mnth_keys *key, void*),
                   void* arg)
@@ -143,7 +128,9 @@ mnth_keyring_iter(void (*cb)(mnth_keys *key, void*),
 void
 mnth_keyring_dump(void)
 {
-  char buf[KEYLEN] = { 0, };
+  char buf[KEYLEN];
+
+  keyring_lock(&G.lock);
 
   dlist_foreach_safe(&G.keyring) {
     mnth_keys *key = GET_KEY(__ptr);
@@ -151,4 +138,6 @@ mnth_keyring_dump(void)
     buf[key->keylen] = 0;
     fprintf(stderr, "[%s:%d] MNTH - key (%s)\n", __func__, __LINE__, buf);
   }
+
+  keyring_unlock(&G.lock);
 }

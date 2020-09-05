@@ -407,8 +407,11 @@ static void settings_init(void)
     settings.topkeys = 0;
     settings.require_sasl = false;
     settings.extensions.logger = get_stderr_logger();
+#ifdef MNTH
     settings.mpoint = NULL;
-    settings.fs_thread_id = 0;
+    settings.mnth_fs_thread_id = 0;
+    settings.mnth_evt_thread_id = 0;
+#endif
 }
 
 /*
@@ -8411,9 +8414,13 @@ static void process_stat(conn *c, token_t *tokens, const size_t ntokens)
         return;
     } else if (strcmp(subcommand, "aggregate") == 0) {
         server_stats(&append_stats, c, true);
-    } else if (strcmp(subcommand, "mnthdump") == 0) {
+    }
+#ifdef MNTH
+    else if (strcmp(subcommand, "mnthdump") == 0) {
         mnth_keyring_dump();
-    } else if (strcmp(subcommand, "topkeys") == 0) {
+    }
+#endif
+    else if (strcmp(subcommand, "topkeys") == 0) {
         topkeys_t *tk = get_independent_stats(c)->topkeys;
         if (tk != NULL) {
             topkeys_stats(tk, c, current_time, append_stats);
@@ -14657,9 +14664,6 @@ static void sigterm_handler(int sig)
     }
     memcached_shutdown = 1;
 
-    if (settings.mpoint && settings.fs_thread_id > 0)
-      pthread_cancel(settings.fs_thread_id);
-
 #ifdef ENABLE_ZK_INTEGRATION
     if (arcus_zk_cfg) {
         arcus_zk_shutdown = 1;
@@ -15919,11 +15923,17 @@ int main (int argc, char **argv)
     if (do_daemonize)
         save_pid(getpid(), pid_file);
 
+#ifdef MNTH
     if (settings.mpoint) {
-        pthread_t tid = mnth_fs_new_thread(NULL, NULL);
-        if (tid > 0)
-          settings.fs_thread_id = tid;
+        pthread_t tid = mnth_fs_thread_new(NULL, NULL);
+        if (tid > 0) {
+            settings.mnth_fs_thread_id = tid;
+            tid = mnth_event_thread_new(NULL);
+            if (tid > 0)
+                settings.mnth_evt_thread_id = tid;
+        }
     }
+#endif
 
     /* enter the event loop */
     event_base_loop(main_base, 0);
@@ -15948,8 +15958,21 @@ int main (int argc, char **argv)
 
     /* 4) shutdown all threads */
     memcached_shutdown = 2;
-    if (settings.mpoint && settings.fs_thread_id > 0)
-      pthread_join(settings.fs_thread_id, NULL);
+
+#ifdef MNTH
+    if (settings.mpoint) {
+        if (settings.mnth_fs_thread_id > 0) {
+            pthread_cancel(settings.mnth_fs_thread_id);
+            pthread_join(settings.mnth_fs_thread_id, NULL);
+        }
+        if (settings.mnth_evt_thread_id > 0) {
+            pthread_cancel(settings.mnth_evt_thread_id);
+            pthread_join(settings.mnth_evt_thread_id, NULL);
+        }
+    }
+
+#endif
+
     threads_shutdown();
     mc_logger->log(EXTENSION_LOG_INFO, NULL, "Worker threads terminated.\n");
 

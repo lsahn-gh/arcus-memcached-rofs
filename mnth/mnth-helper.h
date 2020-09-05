@@ -26,8 +26,10 @@
 #include <engines/default/default_engine.h>
 #include "memcached.h"
 
+#include "mnth-key.h"
 #include "mnth-keyring.h"
 #include "mnth-fs-thread.h"
+#include "mnth-event-thread.h"
 
 /* --- ARCUS APIs --- */
 extern void out_string(conn *c, const char *str);

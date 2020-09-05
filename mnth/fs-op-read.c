@@ -31,17 +31,18 @@ fs_op_read(const char *path, char *buf, size_t size,
   nkey = strlen(key);
 
   it = item_get(key, nkey);
-  if (it)
-    rdata = item_get_data(it);
-  else
-    return 0;
+  if (!it)
+    goto out;
 
+  rdata = item_get_data(it);
   if (offset < it->nbytes) {
     if (offset + size > it->nbytes)
       size = it->nbytes - offset;
     memcpy(buf, rdata, size);
   } else
     size = 0;
+  item_release(it);
 
+out:
   return size;
 }

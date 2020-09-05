@@ -49,6 +49,7 @@ static inline int __list_add(dlist_t *__new,
   return 0;
 }
 
+#define dlist_enqueue dlist_append
 static inline int dlist_append(dlist_t *__head, dlist_t *item)
 {
   if (__head == NULL || item == NULL)
@@ -84,10 +85,35 @@ static inline int dlist_empty(dlist_t *head)
   return head->next == head;
 }
 
-#define dlist_foreach(__head) \
-  for (dlist_t *__ptr = (__head)->next; __ptr != (__head); __ptr = __ptr->next)
+static inline void *dlist_dequeue(dlist_t *head)
+{
+  dlist_t *item;
 
+  if (!head)
+    return NULL;
+
+  item = head->next;
+  dlist_remove(item);
+
+  return item;
+}
+
+/* Deprecated */
+#define dlist_foreach(__head) \
+  for (dlist_t *__ptr = (__head)->next; \
+       __ptr != (__head); \
+       __ptr = __ptr->next)
+
+/* Deprecated */
 #define dlist_foreach_safe(__head) \
-  for (dlist_t *__ptr, *__n = (__ptr = (__head)->next, __ptr->next); __ptr != (__head); __ptr = __n, __n = __ptr->next)
+  for (dlist_t *__ptr, *__n = (__ptr = (__head)->next, __ptr->next); \
+       __ptr != (__head); \
+       __ptr = __n, __n = __ptr->next)
+
+#define dlist_for_each(pos, head) \
+  for (pos = (head)->next; pos != (head); pos = pos->next)
+
+#define dlist_for_each_safe(pos, n, head) \
+  for (pos = (head)->next, n = pos->next; pos != (head); pos = n, n = pos->next)
 
 #endif
