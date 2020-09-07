@@ -19,7 +19,7 @@
 #ifndef _MNTH_EVENT_THREAD_H_
 #define _MNTH_EVENT_THREAD_H_
 
-#include "mnth-keyring.h"
+#include "mnth-key-cache.h"
 
 #define GET_EVT(ptr) ((mnth_evt_item*)ptr)
 

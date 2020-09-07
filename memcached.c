@@ -8417,7 +8417,7 @@ static void process_stat(conn *c, token_t *tokens, const size_t ntokens)
     }
 #ifdef MNTH
     else if (strcmp(subcommand, "mnthdump") == 0) {
-        mnth_keyring_dump();
+        mnth_key_cache_dump();
     }
 #endif
     else if (strcmp(subcommand, "topkeys") == 0) {

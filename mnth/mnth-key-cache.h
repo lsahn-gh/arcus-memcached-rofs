@@ -1,5 +1,5 @@
 /**
- * mnth-keyring.h
+ * mnth-key-cache.h
  *
  * Copyright 2020 Leesoo Ahn <dev@ooseel.net>
  *
@@ -16,15 +16,15 @@
  * limitations under the License.
  */
 
-#ifndef _MNTH_KEYRING_H_
-#define _MNTH_KEYRING_H_
+#ifndef _MNTH_KEY_CACHE_H_
+#define _MNTH_KEY_CACHE_H_
 
 #include "mnth-key.h"
 
-char * mnth_keyring_add(mnth_keys *new_key);
-char * mnth_keyring_lookup(const char *key);
-char * mnth_keyring_rm(mnth_keys *key);
-void mnth_keyring_iter(void (*cb)(mnth_keys *key, void*), void* arg);
-void mnth_keyring_dump(void);
+char * mnth_key_cache_add(mnth_keys *new_key);
+char * mnth_key_cache_lookup(const char *key);
+char * mnth_key_cache_rm(mnth_keys *key);
+void mnth_key_cache_iter(void (*cb)(mnth_keys *key, void*), void* arg);
+void mnth_key_cache_dump(void);
 
 #endif

@@ -91,7 +91,8 @@ memcached_LDFLAGS =-R '$(libdir)'
 
 
 # MNTH
-memcached_SOURCES += mnth/mnth-keyring.c \
+memcached_SOURCES += \
+			mnth/mnth-key-cache.c \
 			mnth/mnth-fs-thread.c \
 			mnth/mnth-event-thread.c \
 			mnth/fs-op-access.c \

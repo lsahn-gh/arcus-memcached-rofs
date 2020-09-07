@@ -27,7 +27,7 @@
 #include "memcached.h"
 
 #include "mnth-key.h"
-#include "mnth-keyring.h"
+#include "mnth-key-cache.h"
 #include "mnth-fs-thread.h"
 #include "mnth-event-thread.h"
 

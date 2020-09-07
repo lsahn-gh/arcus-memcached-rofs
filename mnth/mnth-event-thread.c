@@ -76,9 +76,9 @@ do_process_event_queue(void)
     switch(flag) {
     case MNTH_EVT_KEYADD:
       {
-        mnth_keys *rkey = GET_KEY(mnth_keyring_lookup(obj->key));
+        mnth_keys *rkey = GET_KEY(mnth_key_cache_lookup(obj->key));
         if (!rkey)
-          mnth_keyring_add(obj);
+          mnth_key_cache_add(obj);
         else {
           free(obj);
           obj = NULL;
@@ -87,9 +87,9 @@ do_process_event_queue(void)
       break;
     case MNTH_EVT_KEYDEL:
       {
-        mnth_keys *rkey = GET_KEY(mnth_keyring_lookup(obj->key));
+        mnth_keys *rkey = GET_KEY(mnth_key_cache_lookup(obj->key));
         if (rkey) {
-          mnth_keyring_rm(rkey);
+          mnth_key_cache_rm(rkey);
           free(rkey);
         }
       }

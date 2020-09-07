@@ -31,7 +31,7 @@ fs_op_getattr(const char *path, struct stat *stbuf,
   if (!strcmp(path, "/")) {
     stbuf->st_mode = S_IFDIR | 0755;
     stbuf->st_nlink = 2;
-  } else if ( (key = GET_KEY(mnth_keyring_lookup(path+1)), key) ) {
+  } else if ( (key = GET_KEY(mnth_key_cache_lookup(path+1)), key) ) {
     switch (key->flag) {
     case FG_OP_MRK:
       stbuf->st_mode = S_IFREG | 0444;

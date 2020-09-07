@@ -24,7 +24,7 @@ struct keyring_cb_data {
 };
 
 static void
-keyring_iter_cb(mnth_keys *key, void *arg)
+key_cache_iter_cb(mnth_keys *key, void *arg)
 {
   struct keyring_cb_data *data;
   void *buf;
@@ -58,7 +58,7 @@ fs_op_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
   filler(buf, ".", NULL, 0, 0);
   filler(buf, "..", NULL, 0, 0);
 
-  mnth_keyring_iter(keyring_iter_cb, &data);
+  mnth_key_cache_iter(key_cache_iter_cb, &data);
 
   return 0;
 }

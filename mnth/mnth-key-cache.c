@@ -1,5 +1,5 @@
 /**
- * mnth-keyring.c
+ * mnth-key-cache.c
  *
  * Copyright 2020 Leesoo Ahn <dev@ooseel.net>
  *
@@ -18,26 +18,26 @@
 
 #include "mnth-helper.h"
 
-#define G global_keyring
+#define G global_cache
 
 static struct _global_keyring {
-  dlist_t keyring;
+  dlist_t caches;
   pthread_mutex_t lock;
-} global_keyring = {
-  .keyring = DLIST_HEAD_INIT(G.keyring),
+} global_cache = {
+  .caches = DLIST_HEAD_INIT(G.caches),
   .lock = PTHREAD_MUTEX_INITIALIZER
 };
 
-#define keyring_lock pthread_mutex_lock
-#define keyring_unlock pthread_mutex_unlock
+#define key_cache_lock pthread_mutex_lock
+#define key_cache_unlock pthread_mutex_unlock
 
 char *
-mnth_keyring_add(mnth_keys *new_key)
+mnth_key_cache_add(mnth_keys *new_key)
 {
   if (!new_key)
     return NULL;
 
-  keyring_lock(&G.lock);
+  key_cache_lock(&G.lock);
 
   /**
    * it should be hashmap instead of linked-list,
@@ -46,15 +46,15 @@ mnth_keyring_add(mnth_keys *new_key)
    * > 2020.09.05
    * Since I've built buffer thread, it mightn't need.
    */
-  dlist_append(&G.keyring, GET_DLIST(new_key));
+  dlist_append(&G.caches, GET_DLIST(new_key));
 
-  keyring_unlock(&G.lock);
+  key_cache_unlock(&G.lock);
 
   return new_key;
 }
 
 char *
-mnth_keyring_lookup(const char *key)
+mnth_key_cache_lookup(const char *key)
 {
   char *ret = NULL;
   dlist_t *pos;
@@ -62,11 +62,11 @@ mnth_keyring_lookup(const char *key)
   if (!key)
     return ret;
 
-  keyring_lock(&G.lock);
+  key_cache_lock(&G.lock);
 
   /* TODO
    * skip-list, btree, or hashmap */
-  dlist_for_each(pos, &G.keyring) {
+  dlist_for_each(pos, &G.caches) {
     mnth_keys *item = GET_KEY(pos);
     if (!memcmp(key, item->key, item->keylen)) {
       ret = (char*)item;
@@ -75,7 +75,7 @@ mnth_keyring_lookup(const char *key)
   }
 
 out:
-  keyring_unlock(&G.lock);
+  key_cache_unlock(&G.lock);
 
   return ret;
 }
@@ -88,22 +88,22 @@ out:
  * #return : (transfer ownership of the obj)
  */
 char *
-mnth_keyring_rm(mnth_keys *key)
+mnth_key_cache_rm(mnth_keys *key)
 {
   char *ret = NULL;
 
   if (!key)
     return NULL;
 
-  keyring_lock(&G.lock);
+  key_cache_lock(&G.lock);
 
-  if (dlist_empty(&G.keyring))
+  if (dlist_empty(&G.caches))
     goto out;
   dlist_remove(GET_DLIST(key));
   ret = key;
 
 out:
-  keyring_unlock(&G.lock);
+  key_cache_unlock(&G.lock);
 
   return ret;
 }
@@ -112,32 +112,36 @@ out:
  * Do not lock/unlock inside callback
  */
 void
-mnth_keyring_iter(void (*cb)(mnth_keys *key, void*),
+mnth_key_cache_iter(void (*cb)(mnth_keys *key, void*),
                   void* arg)
 {
   if (!cb)
     return;
 
-  dlist_foreach_safe(&G.keyring)
+  key_cache_lock(&G.lock);
+
+  dlist_foreach_safe(&G.caches)
     cb(GET_KEY(__ptr), arg);
+
+  key_cache_unlock(&G.lock);
 }
 
 /**
  * mini quick dump
  */
 void
-mnth_keyring_dump(void)
+mnth_key_cache_dump(void)
 {
   char buf[KEYLEN];
 
-  keyring_lock(&G.lock);
+  key_cache_lock(&G.lock);
 
-  dlist_foreach_safe(&G.keyring) {
+  dlist_foreach_safe(&G.caches) {
     mnth_keys *key = GET_KEY(__ptr);
     memcpy(buf, key->key, KEYLEN);
     buf[key->keylen] = 0;
     fprintf(stderr, "[%s:%d] MNTH - key (%s)\n", __func__, __LINE__, buf);
   }
 
-  keyring_unlock(&G.lock);
+  key_cache_unlock(&G.lock);
 }
