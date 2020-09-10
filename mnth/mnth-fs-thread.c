@@ -49,7 +49,7 @@ default_fs_loop(void *arg)
     "-f",
     "-o",
     "auto_unmount",
-    "./mpoint",
+    "/tmp/mpoint",
   };
 
   fuse_main(sizeof(fake_argv)/sizeof(fake_argv[0]),
