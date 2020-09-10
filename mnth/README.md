@@ -18,5 +18,30 @@ Here are a few constraints to fulfill this project as the diagram,
 
 Once the server has made a mount point at a specific directory, all keys in the server are represented as files or directories only if they are for list data. After that, users can access and read values, they are data mapped to keys, with `cat`, `ls`, `tree`. Moreover, most programs can get the data through `read` syscall.
 
+# Quick Demo (unfriendly)
+### Requirements
+1. libfuse (need to build)
+
+### Build
+Same as the way of building `arcus-memcached`, please see the official documents.
+
+### Execute
+```sh
+$ sudo umount /tmp/mpoint; ./memcached -vvv -Z /tmp/mpoint
+
+# List keys
+$ ls /tmp/mpoint
+
+# Get a value binded to a specific key
+$ cat /tmp/mpoint/<key name>
+
+# Get all values stored in the server
+$ cat /tmp/mpoint/*
+
+# List keys as a tree layout
+$ tree /tmp/mpoint
+```
+I recommend you use [arcus-c-client](https://github.com/naver/arcus-c-client) to store values to the server.
+
 # A behind story
 I had attended the *Contributhon* two times for the last 4 years and this was the 3rd chance. At the beginning of the event, I wished to have different experiences compared to these years. Not just follow mentors and not just fill Pull Requests, but prefer to put something I didn't ever know together and into reality. It'd be good for me to smash the frame of my brain and see how both technologies work in detail.
