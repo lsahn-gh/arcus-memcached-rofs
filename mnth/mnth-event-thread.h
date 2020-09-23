@@ -21,6 +21,8 @@
 
 #include "mnth-key-cache.h"
 
+#include <stdatomic.h>
+
 #define GET_EVT(ptr) ((mnth_evt_item*)ptr)
 
 enum {
@@ -32,6 +34,7 @@ typedef struct _mnth_evt_item mnth_evt_item;
 struct _mnth_evt_item {
   dlist_t list;
   uint32_t flag;
+  atomic_int ref;
   void *obj;
 };
 
@@ -57,6 +60,29 @@ static inline void * mnth_alloc_evt(uint32_t flag, void *obj)
   return new_evt;
 }
 
+static inline void * mnth_evt_ref(mnth_evt_item *obj)
+{
+  if (!obj)
+    return NULL;
+
+  atomic_fetch_add(&obj->ref, 1);
+
+  return obj;
+}
+
+static inline void * mnth_evt_unref(mnth_evt_item *obj)
+{
+  if (!obj)
+    return NULL;
+
+  if (atomic_fetch_sub(&obj->ref, 1) == 1) {
+    free(obj);
+    obj = NULL;
+  }
+
+  return obj;
+}
+
 static inline void * mnth_evt_key(uint32_t evt_flag,
     const char *key, size_t keylen, size_t valsz, uint64_t flag)
 {
@@ -69,15 +95,14 @@ static inline void * mnth_evt_key(uint32_t evt_flag,
   if (!evt)
     goto free_key;
 
-  if (!mnth_evtbuf_enqueue_async(GET_DLIST(evt)))
+  evt = mnth_evt_ref(evt);
+  if (evt && !mnth_evtbuf_enqueue_async(GET_DLIST(evt)))
     goto fail_evt;
 
-  /* Do not free both key/evt on success,
-   * it doesn't work with refcount */
   return evt;
 
 fail_evt:
-  free(evt);
+  mnth_evt_unref(evt);
 free_key:
   free(kobj);
 

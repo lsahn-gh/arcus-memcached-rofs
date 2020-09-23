@@ -70,8 +70,7 @@ do_process_event_queue(void)
 
     flag = evt->flag;
     obj = GET_KEY(evt->obj);
-
-    free(evt);
+    mnth_evt_unref(evt);
 
     switch(flag) {
     case MNTH_EVT_KEYADD:
