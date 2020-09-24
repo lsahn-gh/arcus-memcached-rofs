@@ -60,6 +60,7 @@ static inline void * mnth_alloc_evt(uint32_t flag, void *obj)
   return new_evt;
 }
 
+#define MNTH_EVT_INCREF mnth_evt_ref
 static inline void * mnth_evt_ref(mnth_evt_item *obj)
 {
   if (!obj)
@@ -70,6 +71,7 @@ static inline void * mnth_evt_ref(mnth_evt_item *obj)
   return obj;
 }
 
+#define MNTH_EVT_DECREF mnth_evt_unref
 static inline void * mnth_evt_unref(mnth_evt_item *obj)
 {
   if (!obj)
@@ -97,14 +99,14 @@ static inline void * mnth_evt_key(uint32_t evt_flag,
   if (!evt)
     goto free_key;
 
-  evt = mnth_evt_ref(evt);
+  evt = MNTH_EVT_INCREF(evt);
   if (evt && !mnth_evtbuf_enqueue_async(GET_DLIST(evt)))
     goto fail_evt;
 
   return evt;
 
 fail_evt:
-  mnth_evt_unref(evt);
+  MNTH_EVT_DECREF(evt);
 free_key:
   MNTH_KEY_DECREF(kobj);
 

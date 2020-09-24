@@ -19,6 +19,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "mnth-helper.h"
 
@@ -71,7 +72,8 @@ do_process_event_queue(void)
 
     flag = evt->flag;
     obj = GET_KEY(evt->obj);
-    mnth_evt_unref(evt);
+
+    assert(MNTH_EVT_DECREF(evt) == NULL);
 
     rkey = MNTH_KEY_INCREF(GET_KEY(mnth_key_cache_lookup(obj->key)));
 
