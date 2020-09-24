@@ -87,10 +87,10 @@ out:
  * @return : removed obj or NULL on failure
  * #return : (transfer ownership of the obj)
  */
-char *
+mnth_keys *
 mnth_key_cache_rm(mnth_keys *key)
 {
-  char *ret = NULL;
+  mnth_keys *ret = NULL;
 
   if (!key)
     return NULL;
@@ -120,8 +120,11 @@ mnth_key_cache_iter(void (*cb)(mnth_keys *key, void*),
 
   key_cache_lock(&G.lock);
 
-  dlist_foreach_safe(&G.caches)
+  dlist_foreach_safe(&G.caches) {
+    MNTH_KEY_INCREF(GET_KEY(__ptr));
     cb(GET_KEY(__ptr), arg);
+    MNTH_KEY_DECREF(GET_KEY(__ptr));
+  }
 
   key_cache_unlock(&G.lock);
 }

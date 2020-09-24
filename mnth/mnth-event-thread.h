@@ -87,11 +87,13 @@ static inline void * mnth_evt_key(uint32_t evt_flag,
     const char *key, size_t keylen, size_t valsz, uint64_t flag)
 {
   mnth_evt_item *evt = NULL;
-  mnth_keys *kobj = mnth_alloc_key(key, keylen, valsz, flag);
+  mnth_keys *kobj = NULL;
+
+  kobj = mnth_alloc_key(key, keylen, valsz, flag);
   if (!kobj)
     return NULL;
 
-  evt = mnth_alloc_evt(evt_flag, kobj);
+  evt = mnth_alloc_evt(evt_flag, MNTH_KEY_INCREF(kobj));
   if (!evt)
     goto free_key;
 
@@ -104,7 +106,7 @@ static inline void * mnth_evt_key(uint32_t evt_flag,
 fail_evt:
   mnth_evt_unref(evt);
 free_key:
-  free(kobj);
+  MNTH_KEY_DECREF(kobj);
 
   return NULL;
 }

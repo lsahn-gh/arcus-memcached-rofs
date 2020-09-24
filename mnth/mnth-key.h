@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdatomic.h>
 
 #include "mnth-dlist.h"
 
@@ -44,6 +45,7 @@ struct _mnth_keys {
   size_t keylen;
   size_t valsz; /* value size */
   uint64_t flag;
+  atomic_int ref;
 };
 
 static inline void * mem_alloc0(size_t sz)
@@ -76,6 +78,31 @@ static inline void * mnth_alloc_key(const char *key,
   new_key->flag |= flag;
 
   return new_key;
+}
+
+#define MNTH_KEY_INCREF mnth_key_ref
+static inline mnth_keys * mnth_key_ref(mnth_keys *key)
+{
+  if (!key)
+    return NULL;
+
+  atomic_fetch_add(&key->ref, 1);
+
+  return key;
+}
+
+#define MNTH_KEY_DECREF mnth_key_unref
+static inline mnth_keys * mnth_key_unref(mnth_keys *key)
+{
+  if (!key)
+    return NULL;
+
+  if (atomic_fetch_sub(&key->ref, 1) == 1) {
+    free(key);
+    key = NULL;
+  }
+
+  return key;
 }
 
 #endif

@@ -53,7 +53,8 @@ static void
 do_process_event_queue(void)
 {
   mnth_evt_item *evt = NULL;
-  mnth_keys *obj = NULL;
+  mnth_keys *obj = NULL,
+            *rkey = NULL;
   uint32_t flag = 0;
   size_t ratelimit = 0;
 
@@ -72,34 +73,27 @@ do_process_event_queue(void)
     obj = GET_KEY(evt->obj);
     mnth_evt_unref(evt);
 
+    rkey = MNTH_KEY_INCREF(GET_KEY(mnth_key_cache_lookup(obj->key)));
+
     switch(flag) {
     case MNTH_EVT_KEYADD:
-      {
-        mnth_keys *rkey = GET_KEY(mnth_key_cache_lookup(obj->key));
-        if (!rkey)
-          mnth_key_cache_add(obj);
-        else {
-          free(obj);
-          obj = NULL;
-        };
+      if (rkey == NULL) {
+        obj = MNTH_KEY_INCREF(obj);
+        mnth_key_cache_add(obj);
       }
       break;
     case MNTH_EVT_KEYDEL:
-      {
-        mnth_keys *rkey = GET_KEY(mnth_key_cache_lookup(obj->key));
-        if (rkey) {
-          mnth_key_cache_rm(rkey);
-          free(rkey);
-        }
+      if (rkey != NULL) {
+        mnth_key_cache_rm(rkey);
+        rkey = MNTH_KEY_DECREF(rkey);
       }
       break;
     default:
       /* Nothing to do */;
     }
 
-    /* be careful! */
-    if (obj && !(flag & MNTH_EVT_KEYADD))
-      free(obj);
+    MNTH_KEY_DECREF(rkey);
+    MNTH_KEY_DECREF(obj);
   }
 }
 
