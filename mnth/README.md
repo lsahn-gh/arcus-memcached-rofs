@@ -1,6 +1,8 @@
 # Arcus-Memcached Read-Only FS
 It is my toy project based on [arcus-memcached](https://github.com/naver/arcus-memcached) and [libfuse](https://github.com/libfuse/libfuse) for 2020 Contributhon (It's like GSoC).
 
+*The purpose of this toy project is to learn the basic concepts of NoSQL based in-memory cache server. No warranty on any risky situations.*
+
 ### What is arcus-memcached?
 It was born from memcached. But *Jam2In*, a company, customized the original one to support their own data structures, list, b+tree, map, and optimized. So basically, it is a NoSQL key-value in-memory cache server, but has different characteristics.
 
@@ -19,11 +21,14 @@ Here are a few constraints to fulfill this project as the diagram,
 Once the server has made a mount point at a specific directory, all keys in the server are represented as files or directories only if they are for list data. After that, users can access and read values, they are data mapped to keys, with `cat`, `ls`, `tree`. Moreover, most programs can get the data through `read` syscall.
 
 # Quick Demo (unfriendly)
-### Requirements
-1. libfuse (need to build)
+### Install Dependencies
+#### Fedora (tested)
+```
+$ dnf install fuse3-devel
+```
 
 ### Build
-Same as the way of building `arcus-memcached`, please see the official documents.
+Same way as `arcus-memcached`. Please see the official [documents](https://github.com/naver/arcus-memcached#build-on-linux).
 
 ### Execute
 ```sh
@@ -41,7 +46,7 @@ $ cat /tmp/mpoint/*
 # List keys as a tree layout
 $ tree /tmp/mpoint
 ```
-I recommend you use [arcus-c-client](https://github.com/naver/arcus-c-client) to store values to the server.
+I recommend you use [arcus-c-client](https://github.com/naver/arcus-c-client) to store values to the server for testing.
 
 # A behind story
 I had attended the *Contributhon* two times for the last 4 years and this was the 3rd chance. At the beginning of the event, I wished to have different experiences compared to these years. Not just follow mentors and not just fill Pull Requests, but prefer to put something I didn't ever know together and into reality. It'd be good for me to smash the frame of my brain and see how both technologies work in detail.
